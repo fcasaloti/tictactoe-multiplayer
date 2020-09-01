@@ -19,27 +19,34 @@ export default class Game extends React.Component {
             isReversed: false,
         };
     }
+    
+    intervalID;
 
     componentDidMount(){
-        //this.interval = setInterval(() => this.tick(), 1000);
-        axios.get('http://192.168.79.1:5000/game/')
+
+        this.getData();
+        this.intervalID = setInterval(this.getData.bind(this), 1000);
+
+    }
+
+    getData = () => {
+        axios.get('http://192.168.1.65:5000/game/')
             .then(response => {
                 //console.log(response.data);   //debug
                 this.setBoard(response.data)
+
             })
             .catch((error) => {
                 console.log(error);
             })
     }
-    // tick() {
-    //     this.setState(state => ({
-    //       seconds: state.seconds + 1
-    //     }));
-    //   }
+    
+    componentWillUnmount() {
 
-    //   componentWillUnmount() {
-    //     clearInterval(this.interval);
-    //   }
+        clearInterval(this.intervalID);
+
+      }
+ 
     
     setBoard(board){
         let history = [{
@@ -80,7 +87,7 @@ export default class Game extends React.Component {
             "squareNumber": i        
         }
 
-        axios.post("http://192.168.79.1:5000/game", squareNumber)
+        axios.post("http://192.168.1.65:5000/game", squareNumber)
             .then((res) => {
                 window.location = "/";
             });
