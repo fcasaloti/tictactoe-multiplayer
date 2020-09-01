@@ -41,5 +41,15 @@ router.route("/").post((req,res) => {
 
 })
 
+router.route("/").delete((req,res) =>{
+    tictactoe.deleteMany()
+        .then((data) => res.json(data))
+        .catch((err) => res.status(400).json("Error: " + err));
+
+    xIsNext = true;
+    stepNumber = 0;
+    console.log("board cleaned")
+})
+
 //exporting router
 module.exports = router;

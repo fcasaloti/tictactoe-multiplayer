@@ -20,8 +20,10 @@ export default class Game extends React.Component {
         };
     }
     
+    //Set interval for refresh
     intervalID;
 
+    //Mount after rendering
     componentDidMount(){
 
         this.getData();
@@ -29,10 +31,11 @@ export default class Game extends React.Component {
 
     }
 
+    //Get data from the server
     getData = () => {
         axios.get('http://192.168.1.65:5000/game/')
             .then(response => {
-                //console.log(response.data);   //debug
+                console.log(response.data);   //debug
                 this.setBoard(response.data)
 
             })
@@ -41,13 +44,14 @@ export default class Game extends React.Component {
             })
     }
     
+    //Unmount case unload the component
     componentWillUnmount() {
 
         clearInterval(this.intervalID);
 
       }
  
-    
+    //Set data on board
     setBoard(board){
         let history = [{
             squares: Array(9).fill(null),
@@ -87,45 +91,24 @@ export default class Game extends React.Component {
             "squareNumber": i        
         }
 
-        axios.post("http://192.168.1.65:5000/game", squareNumber)
-            .then((res) => {
-                window.location = "/";
-            });
+        const history = this.state.history.slice(0, this.state.currentStepNumber + 1);
 
+        const currentSquares = history[history.length - 1];
+        const squares = currentSquares.squares.slice();
+        console.log(squares[i])
 
-
-        //const history = this.state.history.slice(0, this.state.currentStepNumber + 1);
-
-        // const location = [
-        //     'row 1, col 1', 'row 1, col 2', 'row 1, col 3',
-        //     'row 2, col 1', 'row 2, col 2', 'row 2, col 3',
-        //     'row 3, col 1', 'row 3, col 2', 'row 3, col 3',
-        // ];
-
-        //const current = history[history.length - 1];
-        //const squares = current.squares.slice();
- 
         //Check whether is already won and does not allow next player click on the same square
-       // if (calculateWinner(squares) || squares[i]) {
-            //return;
-        //}
+        if (calculateWinner(squares) || squares[i]) {
+            return
+            ;
+        }
 
-        //squares[i] = this.state.xIsNext ? 'X' : 'O';
+        axios.post("http://192.168.1.65:5000/game", squareNumber)
+        .then((res) => {
+            this.getData();
+        });
 
-        //Set State.
-        // this.setState({
-        //     history: history.concat([{
-        //         stepNumber: history.length,
-        //         squares: squares,
-        //         location: location[i],
-        //     }]),
-        //     currentStepNumber: history.length,
-        //     xIsNext: !this.state.xIsNext,
-        // });
-        // console.log(history)
-
-        //console.log(squares[i] + ' clicked on Square # ' + i);      //Debug
-    }
+     }
 
     //Function used to "back in time".
     jumpTo(step) {
@@ -141,6 +124,32 @@ export default class Game extends React.Component {
           isReversed: !this.state.isReversed,
         });
       }
+
+      initialState = () => {
+        this.setState = {
+            history: [{
+                squares: Array(9).fill(null),
+                stepNumber: "",
+                location: "",
+            }],
+            currentStepNumber: 0,
+            xIsNext: true,
+            isReversed: false,
+        };
+        console.log("cleaned")
+      }
+
+      cleanBoard = () => {
+        axios.delete('http://192.168.1.65:5000/game/')
+            .then(response => {
+                this.initialState();
+                window.location = "/";
+
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+    }
 
     //Rendering Game component
     render() {
@@ -173,7 +182,7 @@ export default class Game extends React.Component {
                 </li>
             );
         });
-        //console.log(this.state.history)
+
         //Rendering game
         return (
             <div className="game">
@@ -183,6 +192,9 @@ export default class Game extends React.Component {
                         onClick={(i) => this.handleClick(i)}
                         winnerSquares={winnerSquares}
                     />
+                </div>
+                <div className="game-info">
+                    <button className="button" onClick={() => this.cleanBoard()}>Clean Board</button>
                 </div>
                 <div className="game-info">
                     <span>Reverse</span>
