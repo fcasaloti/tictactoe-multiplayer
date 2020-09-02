@@ -3,11 +3,6 @@ body {
     margin: 20px;
 }
 
-ol,
-ul {
-    padding-left: 30px;
-}
-
 .board-row:after {
     clear: both;
     content: "";
@@ -52,10 +47,10 @@ ul {
     display: inline-block;
 }
 
-.reversed{
+/* .reversed{
     display: flex;
     flex-direction: column-reverse;
-}
+} */
 
 .button {
     background-color: #C0C0C0;
@@ -72,6 +67,7 @@ ul {
   .game-board {
     margin-left:center; 
     margin-right:center;
+    border-collapse: collapse;
   }
 
   .status{
@@ -82,8 +78,13 @@ ul {
     text-decoration: line-through;
   }
 
-
-
-
-
+  @media 
+  only screen and (max-width: 760px),
+  (min-device-width: 768px) and (max-device-width: 1024px)  {
+    
+    .game {
+        display: block;
+    }
+  
+}
   

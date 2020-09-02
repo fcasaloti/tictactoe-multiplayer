@@ -11,7 +11,7 @@ router.route("/").get((req,res) => {
 });
 
 router.route("/").post((req,res) => {
-    stepNumber = (stepNumber >= 8 ? 0 : stepNumber + 1);
+    stepNumber = (stepNumber >= 9 ? 0 : stepNumber + 1);
     const square = xIsNext ? 'X' : 'O';
     const squareNumber= req.body.squareNumber;
     

@@ -40,7 +40,7 @@ export default class Board extends React.Component {
             for (col = 0; col < 3; ++col) {
                 boardColumns.push(this.renderSquare(index++));
             }
-            boardRows.push(<div className="board-row" key={row}>{boardColumns}</div>)
+            boardRows.push(<tr key={row}>{boardColumns}</tr>)
         }
         return boardRows;
     }

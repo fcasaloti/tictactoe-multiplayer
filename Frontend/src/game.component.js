@@ -17,6 +17,7 @@ export default class Game extends React.Component {
             currentStepNumber: 0,
             xIsNext: true,
             isReversed: false,
+            player: "",
         };
     }
     
@@ -37,7 +38,6 @@ export default class Game extends React.Component {
             .then(response => {
                 console.log(response.data);   //debug
                 this.setBoard(response.data)
-
             })
             .catch((error) => {
                 console.log(error);
@@ -111,19 +111,21 @@ export default class Game extends React.Component {
      }
 
     //Function used to "back in time".
-    jumpTo(step) {
-        this.setState({
-            currentStepNumber: step,
-            xIsNext: (step % 2) === 0,
-        });
-    }
+    // jumpTo(step) {
+    //     this.setState({
+    //         currentStepNumber: step,
+    //         xIsNext: (step % 2) === 0,
+    //     });
+    // }
 
     //Function used to reverse buttons order
-    reverseButtons() {
-        this.setState({
-          isReversed: !this.state.isReversed,
-        });
-      }
+    // reverseButtons() {
+    //     this.setState({
+    //       isReversed: !this.state.isReversed,
+    //     });
+    //   }
+
+
 
       initialState = () => {
         this.setState = {
@@ -169,47 +171,60 @@ export default class Game extends React.Component {
         else 
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
         //Looping used to create "back in time" buttons
-        const moves = history.map((step, move) => {
-            const desc = step.stepNumber ?
-                'Go to move #' + step.stepNumber + ' in ' + step.location :
-                'Go to game start';
-            return (
-                <li key={move}>
-                    <button
-                        className="button"
-                        onClick={() => this.jumpTo(move)}
-                    >{desc}</button>
-                </li>
-            );
-        });
+        // const moves = history.map((step, move) => {
+        //     const desc = step.stepNumber ?
+        //         'Go to move #' + step.stepNumber + ' in ' + step.location :
+        //         'Go to game start';
+        //     return (
+        //         <li key={move}>
+        //             <button
+        //                 className="button"
+        //                 onClick={() => this.jumpTo(move)}
+        //             >{desc}</button>
+        //         </li>
+        //     );
+        // });
 
         //Rendering game
         return (
             <div className="game">
-                <div className="game-board">
+                <table className="game-board">
                     <Board
                         squares={current.squares}
                         onClick={(i) => this.handleClick(i)}
                         winnerSquares={winnerSquares}
                     />
-                </div>
+                </table>
                 <div className="game-info">
                     <button className="button" onClick={() => this.cleanBoard()}>Clean Board</button>
-                </div>
-                <div className="game-info">
-                    <span>Reverse</span>
-                    <Switch className="button"
-                        handleToggle={() => this.reverseButtons()}
-                    />
                     <hr></hr>
                     <div className="status">{status}</div>
-                    <hr></hr>
-                    <ol className={this.state.isReversed ? "reversed" : ""}>{moves}</ol>
                 </div>
             </div>
         );
     }
 }
+
+{/* <div className="game-board">
+<Board
+    squares={current.squares}
+    onClick={(i) => this.handleClick(i)}
+    winnerSquares={winnerSquares}
+/>
+</div> */}
+
+
+
+{/* <div className="game-info">
+<span>Reverse</span>
+<Switch className="button"
+    handleToggle={() => this.reverseButtons()}
+/>
+<hr></hr>
+<div className="status">{status}</div>
+<hr></hr>
+<ol className={this.state.isReversed ? "reversed" : ""}>{moves}</ol>
+</div> */}
 
 //Function used to calculate the winner of the game
 function calculateWinner(squares) {

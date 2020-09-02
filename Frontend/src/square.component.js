@@ -6,12 +6,12 @@ function Square(props) {
     const setClass = props.squareWon ? "square line-through" : "square";    //Set class case game is won
 
     return (
-        <button
+        <td
             className={setClass} style={{ fontWeight: `${fontWeight}` }}
             onClick={props.onClick}
         >
             {props.value}
-        </button>
+        </td>
     );
 }
 
