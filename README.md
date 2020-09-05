@@ -1,6 +1,6 @@
 # tictactoe-multiplayer
 
-This is the multiplayer version of the tic-tac-toe application used on https://reactjs.org/tutorial/tutorial.html.
+This is the multiplayer version of the frontend tic-tac-toe application provided by reactjs.org.
 
 On the frontend, this application has changed in removing the "back in time" buttons, and only informing each step and location for each move.
 Also, I inserted highlightings when a square has clicked, and the game is won, besides separate all the components.
