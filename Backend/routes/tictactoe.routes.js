@@ -1,54 +1,65 @@
-//Modules required
+//module required
 const router = require("express").Router();
-let tictactoe = require("../models/tictactoe.model");
-let xIsNext = true;
-let stepNumber = 0;
 
-router.route("/").get((req,res) => {
-    tictactoe.find()
-        .then((data) => res.json(data))
-        .catch((err) => res.status(400).json("Error: " + err));
+//setting variable to store "state" data from clients
+let state = {
+    squares: Array(9).fill(null),
+    stepNumber: 0,
+    xIsNext: true,
+    squareNum: "",
+    history: [{
+        stepNumber: 0,
+        xIsNext: true,
+        squareNum: "",
+    }],
+}
+
+//setting route to send "state" data to clients
+router.route("/").get((request,response) => {
+    
+    const sendData = getData();
+    response.send(sendData);   
+    //console.log(sendData);  //debug
+
 });
 
-router.route("/").post((req,res) => {
-    stepNumber = (stepNumber >= 9 ? 0 : stepNumber + 1);
-    const square = xIsNext ? 'X' : 'O';
-    const squareNumber= req.body.squareNumber;
-    
-    const locationMap = [
-        'row 1, col 1', 'row 1, col 2', 'row 1, col 3',
-        'row 2, col 1', 'row 2, col 2', 'row 2, col 3',
-        'row 3, col 1', 'row 3, col 2', 'row 3, col 3',
-    ];
-    const location = locationMap[squareNumber];
-    const currentStepNumber = stepNumber;
-    xIsNext = !xIsNext;
+//function returning "state" data
+function getData(){
+    return state;
+}
 
-    const newMove = new tictactoe({
-        square,
-        squareNumber,
-        stepNumber,
-        location,
-        currentStepNumber,
-        xIsNext,
-    })
+//setting route to receive data from clients and store in "state" variable
+router.route("/").post((request,response) => {
 
-    console.log (newMove)
-    newMove
-        .save()
-        .then(() => res.json(newMove))
-        .catch((err) => res.status(400).json("Error= " + err));
+    state = {
+        squares: request.body.squares.slice(),
+        stepNumber: request.body.stepNumber,
+        xIsNext: request.body.xIsNext,
+        squareNum: request.body.squareNum,
+        history: request.body.history.slice(),
+    }
 
+    response.json(state);
+    //console.log(state);     //debug
 })
 
-router.route("/").delete((req,res) =>{
-    tictactoe.deleteMany()
-        .then((data) => res.json(data))
-        .catch((err) => res.status(400).json("Error: " + err));
+//route created to reset data of the state variable
+router.route("/").delete((request,response)=> {
+    state = {
+        squares: Array(9).fill(null),
+        stepNumber: 0,
+        xIsNext: true,
+        squareNum: "",
+        history: [{
+            stepNumber: 0,
+            xIsNext: true,
+            squareNum: "",
+        }],
+    }
 
-    xIsNext = true;
-    stepNumber = 0;
-    console.log("board cleaned")
+    response.json("reset done");
+    //console.log("reset done");
+
 })
 
 //exporting router

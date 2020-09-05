@@ -1,233 +1,188 @@
+//importing modules
 import React from 'react';
 import Board from './board.component';
-import Switch from './switch.component';
-//import {Link} from 'react-router-dom';
 import axios from 'axios';
+
+//constant used to set initial data to "state"
+const initialState = {
+    squares: Array(9).fill(null),
+    stepNumber: 0,
+    xIsNext: true,
+    squareNum: '',
+    history: [{
+        stepNumber: 0,
+        xIsNext: true,
+        squareNum: '',
+    }],
+}
+
+//constant used to create list of moves during the game
+const Move = (props) => {
+
+    const locationMap = [
+        'row 1, col 1', 'row 1, col 2', 'row 1, col 3',
+        'row 2, col 1', 'row 2, col 2', 'row 2, col 3',
+        'row 3, col 1', 'row 3, col 2', 'row 3, col 3',
+    ]
+
+    const moves = props.history.map((step,move)=> {
+        const location = step.stepNumber !== 0 ?
+            'Player ' + (step.xIsNext ? "O" : "X") + " clicked on " + locationMap[step.squareNum] :
+            "Game Start";
+            return(
+                <li key={move}>{location}</li>
+            )
+    })
+    return moves;
+}
 
 //Game class. Parent component.
 export default class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            history: [{
-                squares: Array(9).fill(null),
-                stepNumber: "",
-                location: "",
-            }],
-            currentStepNumber: 0,
-            xIsNext: true,
-            isReversed: false,
-            player: "",
+            squares: initialState.squares,
+            stepNumber: initialState.stepNumber,
+            xIsNext: initialState.xIsNext,
+            squareNum: initialState.squareNum,
+            history: initialState.history,
         };
     }
-    
-    //Set interval for refresh
+
+    //set interval for refresh data
     intervalID;
 
-    //Mount after rendering
+    //component used to get data from the backend when page is loaded
     componentDidMount(){
-
         this.getData();
-        this.intervalID = setInterval(this.getData.bind(this), 1000);
-
+        this.intervalID = setInterval(this.getData.bind(this),1000);
     }
 
-    //Get data from the server
-    getData = () => {
-        axios.get('http://192.168.1.65:5000/game/')
+    //get data from the backend and set response in "state"
+    getData(){
+        axios.get("http://localhost:5000/game/")
             .then(response => {
-                console.log(response.data);   //debug
-                this.setBoard(response.data)
-            })
-            .catch((error) => {
-                console.log(error);
+                //console.log(response.data); //debug
+                this.setState(response.data);
             })
     }
-    
-    //Unmount case unload the component
-    componentWillUnmount() {
 
+    //clear interval refresh when components is unloaded
+    componentWillUnmount(){
         clearInterval(this.intervalID);
-
-      }
- 
-    //Set data on board
-    setBoard(board){
-        let history = [{
-            squares: Array(9).fill(null),
-            stepNumber: "",
-            location: ""
-        }];
-
-        let squares = Array(9).fill(null);
-
-        for (let i = 0; i < board.length; i++){
-            for (let z = 0; z < 9; z++){
-                if (board[i].squareNumber === z){
-                    squares[z] = board[i].square;
-                    history[i + 1] = {
-                        squares: squares.slice(),
-                        stepNumber: board[i].stepNumber,
-                        location: board[i].location,
-                     }
-                    break;
-                }
-            }
-        }
-
-        const current = board.length - 1;
-
-        this.setState({
-            history: history.slice(),
-            currentStepNumber: board[current].currentStepNumber,
-            xIsNext: board[current].xIsNext, 
-        })
     }
 
-    //Function handling user clicks.
-    handleClick(i) {
+    //function handling clicks on squares
+    handleClick(i){
 
-        const squareNumber = {
-            "squareNumber": i        
+        let squares = this.state.squares.slice();
+        const calculateWinner = this.calculateWinner(squares);
+
+        if (!squares[i] && !calculateWinner){
+            squares[i] = this.state.xIsNext ? 'X' : 'O';
+            
+        const game = {
+            squares:squares,
+            stepNumber: this.state.stepNumber + 1,
+            xIsNext: !this.state.xIsNext,
+            squareNum: i,
         }
 
-        const history = this.state.history.slice(0, this.state.currentStepNumber + 1);
+        this.checkWinner(game);
+        this.newState(game);
 
-        const currentSquares = history[history.length - 1];
-        const squares = currentSquares.squares.slice();
-        console.log(squares[i])
-
-        //Check whether is already won and does not allow next player click on the same square
-        if (calculateWinner(squares) || squares[i]) {
-            return
-            ;
+        this.postState(game);
         }
+    };
 
-        axios.post("http://192.168.1.65:5000/game", squareNumber)
-        .then((res) => {
-            this.getData();
-        });
-
-     }
-
-    //Function used to "back in time".
-    // jumpTo(step) {
-    //     this.setState({
-    //         currentStepNumber: step,
-    //         xIsNext: (step % 2) === 0,
-    //     });
-    // }
-
-    //Function used to reverse buttons order
-    // reverseButtons() {
-    //     this.setState({
-    //       isReversed: !this.state.isReversed,
-    //     });
-    //   }
-
-
-
-      initialState = () => {
-        this.setState = {
-            history: [{
-                squares: Array(9).fill(null),
-                stepNumber: "",
-                location: "",
-            }],
-            currentStepNumber: 0,
-            xIsNext: true,
-            isReversed: false,
-        };
-        console.log("cleaned")
-      }
-
-      cleanBoard = () => {
-        axios.delete('http://192.168.1.65:5000/game/')
-            .then(response => {
-                this.initialState();
-                window.location = "/";
-
-            })
-            .catch((error) => {
-                console.log(error);
+    //function sending updated data to backend when a square is clicked
+    postState(game){
+        const updatedState = this.newState(game);
+        axios.post("http://localhost:5000/game", updatedState)
+            .then((response) => {
+                //console.log(response.data)    //debug
             })
     }
 
-    //Rendering Game component
-    render() {
-        console.log('game rendered');
-        const history = this.state.history; 
-        const current = history[this.state.currentStepNumber];
-        const winnerSquares = calculateWinner(current.squares);
-        let winnerPlayer = [];
+    //function used to created status message on top of the game
+    checkWinner(squares){
+        const winnerSquares = this.calculateWinner(squares);
+        let winnerPlayer;
         let status;
-        //Check status of the game
+
         if (winnerSquares) {
-            winnerPlayer = current.squares[winnerSquares[0]];
+            winnerPlayer = squares[winnerSquares[0]];
             status = 'Winner: ' + winnerPlayer;
         }
-        else if (this.state.currentStepNumber === 9)
+        else if (this.state.stepNumber === 0)
+        status = 'Lets begin!';
+        else if (this.state.stepNumber === 9)
             status = 'Drawn game';
         else 
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-        //Looping used to create "back in time" buttons
-        // const moves = history.map((step, move) => {
-        //     const desc = step.stepNumber ?
-        //         'Go to move #' + step.stepNumber + ' in ' + step.location :
-        //         'Go to game start';
-        //     return (
-        //         <li key={move}>
-        //             <button
-        //                 className="button"
-        //                 onClick={() => this.jumpTo(move)}
-        //             >{desc}</button>
-        //         </li>
-        //     );
-        // });
 
-        //Rendering game
-        return (
-            <div className="game">
-                <table className="game-board">
-                    <Board
-                        squares={current.squares}
-                        onClick={(i) => this.handleClick(i)}
-                        winnerSquares={winnerSquares}
-                    />
-                </table>
-                <div className="game-info">
-                    <button className="button" onClick={() => this.cleanBoard()}>Clean Board</button>
-                    <hr></hr>
-                    <div className="status">{status}</div>
-                </div>
-            </div>
-        );
+        return status;
     }
-}
+    
+    //function setting new state when a square is clicked
+    newState(game){
 
-{/* <div className="game-board">
-<Board
-    squares={current.squares}
-    onClick={(i) => this.handleClick(i)}
-    winnerSquares={winnerSquares}
-/>
-</div> */}
+        const state = {
+            squares: game.squares,
+            stepNumber: game.stepNumber,
+            xIsNext: game.xIsNext,
+            squareNum: game.squareNum,
+            history: this.state.history.concat([{
+                stepNumber: game.stepNumber,
+                xIsNext: game.xIsNext,
+                squareNum: game.squareNum,
+            }]),
+        }
 
+        this.setState({
+            squares: state.squares,
+            stepNumber: state.stepNumber,
+            xIsNext: state.xIsNext,
+            squareNum: state.squareNum,
+            history: this.state.history.concat([{
+                stepNumber: state.stepNumber,
+                xIsNext: state.xIsNext,
+                squareNum: state.squareNum,
+            }]),
+        })
+        return state;
+    };
 
+    //function used to reset the state of the game on client when Reset is clicked
+    resetGame(){
+        this.setState({
+            squares: initialState.squares,
+            stepNumber: initialState.stepNumber,
+            xIsNext: initialState.xIsNext,
+            squareNum: initialState.squareNum,
+            history: [{
+                stepNumber: 0,
+                xIsNext: true,
+                squareNum: '',
+            }],
+        })
+        this.sendReset();
+    }
 
-{/* <div className="game-info">
-<span>Reverse</span>
-<Switch className="button"
-    handleToggle={() => this.reverseButtons()}
-/>
-<hr></hr>
-<div className="status">{status}</div>
-<hr></hr>
-<ol className={this.state.isReversed ? "reversed" : ""}>{moves}</ol>
-</div> */}
+    //function used to reset the state of the game on backend when Reset is clicked
+    sendReset = () => {
+        axios.delete('http://localhost:5000/game/')
+            .then(response => {
+                console.log(response);
 
-//Function used to calculate the winner of the game
-function calculateWinner(squares) {
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+    }
+
+    //Function used to calculate the winner of the game
+    calculateWinner(squares) {
     const lines = [
         [0, 1, 2],
         [3, 4, 5],
@@ -245,4 +200,42 @@ function calculateWinner(squares) {
         }
     }
     return null;
+}
+
+    //Rendering Game component
+    render() {
+        console.log('game rendered');
+        //Rendering game
+        return (
+            <div className="game">
+                <table className="game-board">
+                    <tbody>
+                        <Board
+                            squares={this.state.squares}
+                            onClick={(i) => this.handleClick(i)}
+                            winnerSquares={this.calculateWinner(this.state.squares)}
+                            squareNum={this.state.squareNum}
+                        />
+                    </tbody>
+                </table>
+                <div className="description">
+                    <div className="game-info">
+                        <div className="status">{this.checkWinner(this.state.squares)}</div>
+                        <hr></hr>
+                    </div>
+                    <div className="button">
+                        <button className="reset" onClick={() => this.resetGame()}>Reset</button>
+                        <br></br>
+                    </div>
+                    <div>
+                        <ol className="moves" start="0">
+                            <Move
+                                history={this.state.history}
+                            />
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 }

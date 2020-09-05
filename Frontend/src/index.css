@@ -1,80 +1,74 @@
 body {
     font: 14px "Century Gothic", Futura, sans-serif;
-    margin: 20px;
-}
-
-.board-row:after {
-    clear: both;
-    content: "";
-    display: table;
-}
-
-.status {
-    margin-bottom: 10px;
+    margin-left: 30%;
+    margin-top: 10%
 }
 
 .square {
     background: #fff;
     border: 1px solid #999;
-    float: left;
-    font-size: 24px;
-    line-height: 34px;
-    height: 34px;
-    margin-right: -1px;
-    margin-top: -1px;
+    font-size: 48px;
+    line-height: 68px;
+    height: 68px;
+    width: 68px;
     padding: 0;
     text-align: center;
-    width: 34px;
-}
-
-.square:focus {
-    outline: none;
-}
-
-.kbd-navigation .square:focus {
-    background: #ddd;
+    cursor: pointer;
 }
 
 .game {
     display: flex;
-    flex-direction: row;
 }
 
-.game-info {
-    margin-left: 20px;
-    padding: 6px 12px;
-    text-align: left;
-    display: inline-block;
-}
-
-/* .reversed{
-    display: flex;
-    flex-direction: column-reverse;
-} */
-
-.button {
-    background-color: #C0C0C0;
-    border: none;
-    color: white;
-    padding: 6px 12px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 8px;
-    cursor: pointer;
-  }
-
-  .game-board {
+.game-board {
     margin-left:center; 
     margin-right:center;
     border-collapse: collapse;
   }
 
-  .status{
-      text-align: center;
+.description {
+    margin-left: 30px;
+    padding: 2px 8px;
+    width: 220px;
+}
+
+.game-info {
+    margin: auto;
+    padding: 2px 8px;
+}
+
+.status {
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.button{
+    display: -webkit-box;  /* OLD - iOS 6-, Safari 3.1-6, BB7 */
+    display: -ms-flexbox;  /* TWEENER - IE 10 */
+    display: -webkit-flex; /* NEW - Safari 6.1+. iOS 7.1+, BB10 */
+    display: flex;         /* NEW, Spec - Firefox, Chrome, Opera */
+
+    justify-content: center;
+    align-items: center;
+}
+
+.reset{
+    background-color: #C0C0C0;
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
   }
 
-  .line-through{
+  .moves{
+    padding: 0%;
+}
+
+ .line-through{
     text-decoration: line-through;
   }
 
@@ -85,6 +79,26 @@ body {
     .game {
         display: block;
     }
+
+    body {
+        margin-left: 10%;
+        margin-top: 10%
+    }
+
+    .description {
+        margin-left: 0%;
+        padding-left: 0%;
+        width: 220px;
+    }
+
+    .game-info {
+        margin-left: 0px;
+        margin-top: 10px;
+        padding: 2px 8px;
+    }
+
+    .moves{
+        margin-left: 10px;
+    }
   
 }
-  

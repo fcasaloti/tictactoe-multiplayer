@@ -9,7 +9,7 @@ export default class Board extends React.Component {
         //Check whether Square is Selected.
         let isSelected = false;
         if (i === this.props.squareNum)
-            isSelected = true
+             isSelected = true
 
         //Get Squares that won the game and check against the current rendering
         const getSquaresWon = this.props.winnerSquares !== null ? this.props.winnerSquares.slice() : "";        
