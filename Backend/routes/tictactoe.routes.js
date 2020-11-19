@@ -19,7 +19,7 @@ router.route("/").get((request,response) => {
     
     const sendData = getData();
     response.send(sendData);   
-    //console.log(sendData);  //debug
+    console.log(sendData);  //debug
 
 });
 
@@ -40,7 +40,7 @@ router.route("/").post((request,response) => {
     }
 
     response.json(state);
-    //console.log(state);     //debug
+    console.log(state);     //debug
 })
 
 //route created to reset data of the state variable
@@ -58,7 +58,7 @@ router.route("/").delete((request,response)=> {
     }
 
     response.json("reset done");
-    //console.log("reset done");
+    console.log("reset done");
 
 })
 

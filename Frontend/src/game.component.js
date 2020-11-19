@@ -16,6 +16,9 @@ const initialState = {
     }],
 }
 
+//Input here your local IP or type "localhost"
+const myIp = "192.168.1.65";
+
 //constant used to create list of moves during the game
 const Move = (props) => {
 
@@ -60,7 +63,7 @@ export default class Game extends React.Component {
 
     //get data from the backend and set response in "state"
     getData(){
-        axios.get("http://localhost:5000/game/")
+        axios.get('http://' + myIp + ':5000/game/')
             .then(response => {
                 //console.log(response.data); //debug
                 this.setState(response.data);
@@ -98,7 +101,7 @@ export default class Game extends React.Component {
     //function sending updated data to backend when a square is clicked
     postState(game){
         const updatedState = this.newState(game);
-        axios.post("http://localhost:5000/game", updatedState)
+        axios.post('http://' + myIp + ':5000/game/', updatedState)
             .then((response) => {
                 //console.log(response.data)    //debug
             })
@@ -171,7 +174,7 @@ export default class Game extends React.Component {
 
     //function used to reset the state of the game on backend when Reset is clicked
     sendReset = () => {
-        axios.delete('http://localhost:5000/game/')
+        axios.delete('http://' + myIp + ':5000/game/')
             .then(response => {
                 console.log(response);
 
